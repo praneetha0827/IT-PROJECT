@@ -5,38 +5,62 @@ import pandas as pd
 import plotly.express as px
 
 
-
 #Step -1 = Page_setup_config and Title, CSS
 st.set_page_config(
-        page_title="Analyse@co.com",
+        page_title="Analyise@co.com",
         page_icon=":cyclone:",
         layout="wide",
         initial_sidebar_state="expanded")
-#title
-st.title("Feedback :blue[|trends.com] :sunglasses:")
+
+
+#Title
+st.title("Feedback :blue[|Trends.com] :sunglasses:")
 #css
-st.markdown('''
-   <style> 
+st.markdown('''    
+   <style>
             .stApp{
-                background-color : white;
-                color : black;
+                background-color : #94BBE9;
+                color: black;
             }
-   </style>
-''',unsafe_allow_html=True)
+    </style>
+''', unsafe_allow_html=True)
+
+
+
+
+
 
 #Step -2 = Data Intialisation and LLM
-if 'db' not in session_state:
-    st.session_state.db = [] #if db was not in session create as new list to store app data
-    if 'p' not in st.session_state:
-        st.session_state.p ={
-            "java"   : "",
-            "python" : "",
-            ".net"   : ""
-        }
+if 'db' not in st.session_state:
+    st.session_state.db = []#if 'db' was not in session create as newlist to storeapp
+                            #data
+if 'p' not in st.session_state:
+    st.session_state.p = {
+        "Java"   : {"ts":5.0,
+                    "c":1,
+                    "img": "https://i.ibb.co/NVZs8Hp/java.png",
+                    "price": 4500,
+                    "Data" : "This comprehensive course covers all Core Java subtopics crucial for interview preparation. Dive deep into fundamental concepts and advanced techniques through  hands-on assessments. Ideal for beginners and experienced developers alike, it's your key to mastering Java for interviews." },
 
 
+        "Python" : {"ts":3.8,
+                    "c":1,
+                    "img": "https://i.ibb.co/FY3Zf6B/python.png",
+                    "price": 3500,
+                    "Data" : "Master Python for your next interview with our specialized crash course! Through video lessons and practical assessments, you'll learn everything from basic syntax to advanced topics like data manipulation and web scraping. " },
 
-#Step -3 = UI Creation and pages
+
+        ".Net"   : {"ts":4.0,
+                    "c":1,
+                    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL3uFEyeveell3N2QYYeBc_cXjMHprzY26bg&s",
+                    "price": 4500,
+                    "Data" : "Learn .NET development. This course covers everything from building desktop applications to web and API development using .NET Core and C#. Perfect for developers aiming to master the .NET framework and advance their career" }
+    }
+
+#review data analytics
+
+
+#Step -3 = UI Creation and pagesnot
 pages = ["📧Product FeedbackPage", "📊Product Trend Analysis"]
 mode = st.sidebar.radio(":=>  Menu",pages)
 
