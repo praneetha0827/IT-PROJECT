@@ -19,8 +19,13 @@ st.title("Feedback :blue[|Trends.com] :sunglasses:")
 st.markdown('''    
    <style>
             .stApp{
-                background-color : #94BBE9;
+                background-color : white;
                 color: black;
+            }
+
+
+            .Product-card{
+           
             }
     </style>
 ''', unsafe_allow_html=True)
@@ -38,26 +43,41 @@ if 'p' not in st.session_state:
     st.session_state.p = {
         "Java"   : {"ts":5.0,
                     "c":1,
-                    "img": "https://i.ibb.co/NVZs8Hp/java.png",
+                    "icon": "https://images.icon-icons.com/1381/PNG/512/java_93883.png",
                     "price": 4500,
                     "Data" : "This comprehensive course covers all Core Java subtopics crucial for interview preparation. Dive deep into fundamental concepts and advanced techniques through  hands-on assessments. Ideal for beginners and experienced developers alike, it's your key to mastering Java for interviews." },
 
 
         "Python" : {"ts":3.8,
                     "c":1,
-                    "img": "https://i.ibb.co/FY3Zf6B/python.png",
+                    "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzvsj4Ly8EbFQcMH0MfT2QEI-L4mDVDK_vZA&s",
                     "price": 3500,
                     "Data" : "Master Python for your next interview with our specialized crash course! Through video lessons and practical assessments, you'll learn everything from basic syntax to advanced topics like data manipulation and web scraping. " },
 
 
         ".Net"   : {"ts":4.0,
                     "c":1,
-                    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL3uFEyeveell3N2QYYeBc_cXjMHprzY26bg&s",
+                    "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL3uFEyeveell3N2QYYeBc_cXjMHprzY26bg&s",
                     "price": 4500,
                     "Data" : "Learn .NET development. This course covers everything from building desktop applications to web and API development using .NET Core and C#. Perfect for developers aiming to master the .NET framework and advance their career" }
     }
 
-#review data analytics
+
+#Review Data Analytics
+def analyze(t):
+    t = t.lower()
+    p = sum(t.count(w) for w in ["good", "great", "best", "love", "amazing", "pass"])
+    n = sum(t.count(w) for w in ["bad", "worst", "waste", "flop", "error", "fail"])
+    if p>n:
+        return "Positive", "#00FF00"
+    elif n>p:
+        return "Negative", "#F31919"
+    else:
+        return "Neutral", "#D1FFF9"
+
+
+
+
 
 
 #Step -3 = UI Creation and pagesnot
@@ -65,7 +85,26 @@ pages = ["📧Product FeedbackPage", "📊Product Trend Analysis"]
 mode = st.sidebar.radio(":=>  Menu",pages)
 
 
+#Feedback page
 if mode == "📧Product FeedbackPage":
     st.text("📨Product Feedback")
+    cols = st.columns(3)
+    for i, (name, info) in enumerate(st.session_state.p.items()):
+        with cols[i]:
+            avg = round(info['ts']/info['c'], 1)
+            st.markdown(f'''
+                <div class="Product-card">
+                    <img src="{info["icon"]}" width="220px"><br>
+                    <h3> {name} </h3>
+                    <p>Rating : {"⭐" * int(avg)} ({avg}) </p>
+                    <b class="price">Price : ₹ {info['price']} </b>
+                    <p> {info['Data']} </p>
+                </div>
+            ''', unsafe_allow_html=True)
+
+
+
+
+#Analaysis page
 elif mode == "Product Trend Analysis":
     st.text("Product Trends")
