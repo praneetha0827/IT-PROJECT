@@ -1,0 +1,47 @@
+#importing
+import streamlit as st
+import datetime
+import pandas as pd
+import plotly.express as px
+
+
+
+#Step -1 = Page_setup_config and Title, CSS
+st.set_page_config(
+        page_title="Analyse@co.com",
+        page_icon=":cyclone:",
+        layout="wide",
+        initial_sidebar_state="expanded")
+#title
+st.title("Feedback :blue[|trends.com] :sunglasses:")
+#css
+st.markdown('''
+   <style> 
+            .stApp{
+                background-color : white;
+                color : black;
+            }
+   </style>
+''',unsafe_allow_html=True)
+
+#Step -2 = Data Intialisation and LLM
+if 'db' not in session_state:
+    st.session_state.db = [] #if db was not in session create as new list to store app data
+    if 'p' not in st.session_state:
+        st.session_state.p ={
+            "java"   : "",
+            "python" : "",
+            ".net"   : ""
+        }
+
+
+
+#Step -3 = UI Creation and pages
+pages = ["📧Product FeedbackPage", "📊Product Trend Analysis"]
+mode = st.sidebar.radio(":=>  Menu",pages)
+
+
+if mode == "📧Product FeedbackPage":
+    st.text("📨Product Feedback")
+elif mode == "Product Trend Analysis":
+    st.text("Product Trends")
