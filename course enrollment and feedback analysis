@@ -1,0 +1,191 @@
+
+#importing
+import streamlit as st
+import datetime, time
+import pandas as pd
+import plotly.express as px
+import re
+
+
+#Step -1 = Page_setup_config and Title, CSS
+st.set_page_config(
+        page_title="Analyise@co.com",
+        page_icon=":cyclone:",
+        layout="wide",
+        initial_sidebar_state="expanded")
+
+
+#Title
+st.title("Feedback :blue[|Trends.com] :sunglasses:")
+#css
+st.markdown('''    
+   <style>
+            .stApp{
+                background-color : white;
+                color: black;
+            }
+
+
+            .Product-card{
+           
+            }
+
+
+            button{
+                background-color: black;
+                color: white;
+                border-radius: 4px;
+            }
+
+
+            button:hover{
+                background-color: gold;
+                color: black;
+                border: none;
+                border-radius: 12px;
+            transition: background-color 0.3s ease, transform 0.2s ease-out;
+            }
+    </style>
+''', unsafe_allow_html=True)
+
+
+
+
+
+
+#Step -2 = Data Intialisation and LLM
+if 'db' not in st.session_state:
+    st.session_state.db = []#if 'db' was not in session create as newlist to storeapp
+                            #data
+if 'p' not in st.session_state:
+    st.session_state.p = {
+        "Java"   : {"ts":5.0,
+                    "c":1,
+                    "icon": "https://images.icon-icons.com/1381/PNG/512/java_93883.png",
+                    "price": 4500,
+                    "Data" : "This comprehensive course covers all Core Java subtopics crucial for interview preparation. Dive deep into fundamental concepts and advanced techniques through  hands-on assessments. Ideal for beginners and experienced developers alike, it's your key to mastering Java for interviews." },
+
+
+        "Python" : {"ts":3.8,
+                    "c":1,
+                    "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzvsj4Ly8EbFQcMH0MfT2QEI-L4mDVDK_vZA&s",
+                    "price": 3500,
+                    "Data" : "Master Python for your next interview with our specialized crash course! Through video lessons and practical assessments, you'll learn everything from basic syntax to advanced topics like data manipulation and web scraping. " },
+
+
+        ".Net"   : {"ts":4.0,
+                    "c":1,
+                    "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL3uFEyeveell3N2QYYeBc_cXjMHprzY26bg&s",
+                    "price": 4500,
+                    "Data" : "Learn .NET development. This course covers everything from building desktop applications to web and API development using .NET Core and C#. Perfect for developers aiming to master the .NET framework and advance their career" }
+    }
+
+
+#Review Data Analytics
+def analyze(t):
+    t = t.lower()
+    p = sum(t.count(w) for w in ["good", "great", "best", "love", "amazing", "pass", "useful", "helpful", "excellent", "satisfied"])
+    n = sum(t.count(w) for w in ["bad", "worst", "waste", "flop", "error", "fail", "useless", "disappointed", "poor", "unsatisfied"])
+    if p>n:
+        return "Positive", "#077807"
+    elif n>p:
+        return "Negative", "#F31919"
+    else:
+        return "Neutral", "#0388D5"
+
+
+
+
+
+
+#Step -3 = UI Creation and pagesnot
+pages = ["📧Product FeedbackPage", "📊Product Trend Analysis"]
+mode = st.sidebar.radio(":=>  Menu",pages)
+
+
+#Feedback page
+if mode == "📧Product FeedbackPage":
+    st.text("📨Product Feedback")
+    cols = st.columns(3)
+    for i, (name, info) in enumerate(st.session_state.p.items()):
+        with cols[i]:
+            avg = round(info['ts']/info['c'], 1)
+            st.markdown(f'''
+                <div class="Product-card">
+                    <img src="{info["icon"]}" width="220px"><br>
+                    <h3> {name} </h3>
+                    <p>Rating : {"⭐" * int(avg)} ({avg}) </p>
+                    <b class="price">Price : ₹ {info['price']} </b>
+                    <p> {info['Data']} </p>
+                    <button> Enroll now </button>
+                </div>
+            ''', unsafe_allow_html=True)
+            with st.expander("Reviews"):
+                if st.session_state.db==[]:
+                    st.info("No reviews yet. Be the first one to review!")
+                else:
+                    for r in [r for r in st.session_state.db if r['course'] == name]:
+                        st.markdown(f'''
+                            <div style="background-color: {r['color']}; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                                <p style="color: gold;"><b>Email:</b> {r['email']} <br> <b>Rating:</b> {"⭐" * r['rating']} ({r['rating']}) | <b>Sentiment:</b> {r['sentiment']} </p>
+                                <p style="color: #ffff;">{r['feedback']}</p>
+                                <p style="font-size: 0.8em; color: #F4F5F5;">Submitted on: {r['dt']}</p>
+                            </div>
+                        ''', unsafe_allow_html=True)
+
+
+    st.divider()
+    st.text("FeedBack Form")
+    c1,c2 = st.columns(2)
+    with c1:
+        em = st.text_input("Email: ")
+        pro = st.selectbox("Choose course", ["--select--", "Java", "Python", ".Net"])
+        sr = st.select_slider("🌟Rate course: ",[1,2,3,4,5], 3)
+    with c2:
+        tx = st.text_area("Write your feedback: ", height=180)
+        if st.button("Submit"):
+            if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9,_%+-]+\.[a-zA-Z]{2,}$", em):
+                st.error("Please enter a valid email address.")
+            elif any(r for r in st.session_state.db if r['email'] == em and r['course'] == pro):
+                st.warning("You have already submitted feedback for this course.")
+            elif tx:
+                sent, colr = analyze(tx)
+                now = datetime.datetime.now()
+                st.session_state.db.append({"email": em,
+                                            "course": pro,
+                                            "rating": sr,
+                                            "feedback": tx,
+                                            "sentiment": sent,
+                                            "color": colr,
+                                            "dt": now})
+                st.session_state.p[pro]['ts']+=sr
+                st.session_state.p[pro]['c']+=1
+                st.success("Thank you for your feedback!");
+                time.sleep(1)
+                st.rerun()
+            else:
+                st.error("Please write your feedback before submitting.")
+               
+               
+
+
+
+
+
+
+#Analaysis page
+elif mode == "📊Product Trend Analysis":
+    if st.session_state.db==[]:
+        st.info("No feedback data available for analysis.")
+    else:
+        df = pd.DataFrame(st.session_state.db)
+        tdf = pd.DataFrame({"Course": st.session_state.p.keys(),
+                            "Average Rating": [round(info['ts']/info['c'], 1)
+                                            for info in st.session_state.p.values()]})
+        for k, v in st.session_state.p.items():
+            st.plotly_chart(px.area(tdf, x="Course", y="Average Rating", title="Course Rating Trend", markers=True,
+                                    color_discrete_sequence=["#F31919" if c==k else "#077807" for c in tdf['Course']]))
+            st.dataframe(df.style.apply(lambda r: [f"background-color: {r['color']}" if r['course'] == k else "" for _ in r], axis=1))
+           
+
+
